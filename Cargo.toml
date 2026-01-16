@@ -1,0 +1,13 @@
+[package]
+name = "explorify-form-fill"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+aws-config = "1.6.1"
+aws-sdk-lambda = "1.113.0"
+gemini-client-api = "5.6.2"
+lambda_runtime = "1.0.2"
+serde = "1.0.228"
+serde_json = "1.0.149"
+tokio = "1.49.0"
