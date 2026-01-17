@@ -13,7 +13,7 @@ struct Event {
 }
 async fn handler(event: LambdaEvent<Event>) -> Result<Value, Box<dyn Error>> {
     let request: Request = from_str(&event.payload.body)?;
-    Ok(ask(request).await)
+    ask(request).await
 }
 #[tokio::main]
 async fn main() {

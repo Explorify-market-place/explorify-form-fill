@@ -8,11 +8,8 @@ use gemini_client_api::gemini::{
     },
 };
 use serde::Deserialize;
-use serde_json::{Value, from_str, json, to_vec};
-use std::{
-    env,
-    str::from_utf8,
-};
+use serde_json::{Value, json, to_vec};
+use std::{env, error::Error, str::from_utf8};
 
 #[derive(Deserialize)]
 pub struct Request {
@@ -20,7 +17,7 @@ pub struct Request {
     link: Option<String>,
 }
 
-async fn link_to_markdown(url: &str) -> String {
+async fn link_to_markdown(url: &str) -> Result<String, Box<dyn Error>> {
     let request = json!({
             "body": {
                 "url":url,
@@ -28,7 +25,7 @@ async fn link_to_markdown(url: &str) -> String {
                 "limit":1
         }
     });
-    let request = Blob::new(to_vec(&request).unwrap());
+    let request = Blob::new(to_vec(&request)?);
 
     let client = Client::new(get_aws_config().await);
     let response = client
@@ -37,24 +34,21 @@ async fn link_to_markdown(url: &str) -> String {
         .invocation_type(aws_sdk_lambda::types::InvocationType::RequestResponse)
         .payload(request)
         .send()
-        .await
-        .expect("Failed to webscrap function");
+        .await?;
 
-    from_utf8(response.payload.unwrap().as_ref())
-        .unwrap()
-        .to_string()
+    Ok(from_utf8(response.payload.unwrap().as_ref())?.to_string())
 }
 #[tokio::test]
 pub async fn link_to_markdown_test() {
     let response = link_to_markdown("https://vinaiak.com").await;
-    dbg!(response);
+    dbg!(response.unwrap());
 }
 
-pub async fn ask(request: Request) -> Value {
+pub async fn ask(request: Request) -> Result<Value, Box<dyn Error>> {
     let is_link: bool;
     let parts = if let Some(link) = request.link {
         is_link = true;
-        vec![Part::text(link_to_markdown(&link).await.into())]
+        vec![Part::text(link_to_markdown(&link).await?.into())]
     } else {
         is_link = false;
         let pdf = request
@@ -80,14 +74,9 @@ pub async fn ask(request: Request) -> Value {
     )
     .set_json_mode(OUTPUT_SCHEMA.clone())
     .ask(Session::new(2).ask(parts))
-    .await
-    .unwrap();
+    .await?;
 
-    println!(
-        "{}",
-        from_str::<Value>(&response.get_chat().get_text_no_think("\n")).unwrap()
-    );
-    response.get_json().unwrap()
+    Ok(response.get_json()?)
 }
 #[tokio::test]
 pub async fn ask_link_test() {
@@ -97,19 +86,21 @@ pub async fn ask_link_test() {
             link: Some("https://traveltechindia.netlify.app/Details/Pachmarhi".to_string())
         })
         .await
+        .unwrap()
     );
 }
 #[tokio::test]
 pub async fn ask_pdf_test() {
     use base64::{Engine as _, engine::general_purpose};
 
-    let pdf = general_purpose::STANDARD
-        .encode(std::fs::read("Manali Kasol 4N-5D Ex Delhi.pdf").unwrap());
+    let pdf =
+        general_purpose::STANDARD.encode(std::fs::read("Manali Kasol 4N-5D Ex Delhi.pdf").unwrap());
     dbg!(
         ask(Request {
             pdf: Some(pdf),
             link: None
         })
         .await
+        .unwrap()
     );
 }
