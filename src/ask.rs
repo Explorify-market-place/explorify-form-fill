@@ -94,7 +94,7 @@ pub async fn ask_pdf_test() {
     use base64::{Engine as _, engine::general_purpose};
 
     let pdf =
-        general_purpose::STANDARD.encode(std::fs::read("Manali Kasol 4N-5D Ex Delhi.pdf").unwrap());
+        general_purpose::STANDARD.encode(std::fs::read("Winter Spiti Valley - Delhi to Delhi.pdf").unwrap());
     dbg!(
         ask(Request {
             pdf: Some(pdf),
