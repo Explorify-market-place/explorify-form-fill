@@ -1,13 +1,19 @@
-use lambda_runtime::{Error, LambdaEvent, service_fn, tracing};
+use lambda_runtime::{LambdaEvent, service_fn, tracing};
 use serde::Deserialize;
+use serde_json::{Value, from_str};
+use std::error::Error;
+
+use crate::ask::{Request, ask};
 pub mod ask;
+pub mod constants;
 
 #[derive(Deserialize)]
 struct Event {
     body: String,
 }
-async fn handler(event: LambdaEvent<Event>)->Result<(), Error> {
-    todo!()
+async fn handler(event: LambdaEvent<Event>) -> Result<Value, Box<dyn Error>> {
+    let request: Request = from_str(&event.payload.body)?;
+    Ok(ask(request).await)
 }
 #[tokio::main]
 async fn main() {
