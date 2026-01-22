@@ -5,6 +5,7 @@ use serde_json::{Value, from_str, json};
 use crate::ask::{Request, ask};
 pub mod ask;
 pub mod constants;
+pub mod fetch;
 
 #[derive(Deserialize)]
 struct Event {

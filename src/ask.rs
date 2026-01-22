@@ -1,4 +1,7 @@
-use crate::constants::{MARKDOWN_SYS_PROMPT, OUTPUT_SCHEMA, PDF_SYS_PROMPT, get_aws_config};
+use crate::{
+    constants::{MARKDOWN_SYS_PROMPT, OUTPUT_SCHEMA, PDF_SYS_PROMPT, get_aws_config},
+    fetch::fetch_pdf_base64,
+};
 use aws_sdk_lambda::{Client, primitives::Blob};
 use gemini_client_api::gemini::{
     ask::Gemini,
@@ -56,7 +59,7 @@ pub async fn ask(request: Request) -> Result<Value, Box<dyn Error>> {
             .expect("Neither link nor pdf field was present in request");
         vec![Part::inline_data(InlineData::new(
             mime::APPLICATION_PDF,
-            pdf,
+            fetch_pdf_base64(&pdf).await?,
         ))]
     };
 
@@ -91,13 +94,9 @@ pub async fn ask_link_test() {
 }
 #[tokio::test]
 pub async fn ask_pdf_test() {
-    use base64::{Engine as _, engine::general_purpose};
-
-    let pdf =
-        general_purpose::STANDARD.encode(std::fs::read("Winter Spiti Valley - Delhi to Delhi.pdf").unwrap());
     dbg!(
         ask(Request {
-            pdf: Some(pdf),
+            pdf: Some("itineraries/temp-ec705976-8753-40a3-ad11-80a92909bae1-1769014010233-spiti.pdf".into()),
             link: None
         })
         .await

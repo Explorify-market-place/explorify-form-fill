@@ -15,27 +15,18 @@ async function readLink(link) {
     return JSON.parse(res)
 }
 
-async function pdfToBase64(filePath) {
-    try {
-        const fileBuffer = await fs.readFile(filePath);
-        return fileBuffer.toString('base64');
-    } catch (error) {
-        console.error("Error reading PDF:", error);
-        throw error;
-    }
-}
-async function readPdf(path) {
+async function readPdf(key) {
     let res = await fetch("https://jeubsu5h36ulifpl7c3gw7jci40msjya.lambda-url.ap-south-1.on.aws/", {
         method: "POST",
         headers: {
             "Content-Type": "application/json;charset=UTF-8"
         },
         body: JSON.stringify({
-            pdf: await pdfToBase64(path)
+            pdf: key
         })
     })
     res = await res.text()
     return JSON.parse(res)
 }
 // readLink("https://traveltechindia.netlify.app/Details/Pachmarhi").then(data => console.log(data))
-readPdf("Winter Spiti Valley - Delhi to Delhi.pdf").then(data => console.log(data))
+readPdf("itineraries/temp-ec705976-8753-40a3-ad11-80a92909bae1-1769014010233-spiti.pdf").then(data => console.log(data))
