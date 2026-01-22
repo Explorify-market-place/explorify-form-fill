@@ -13,9 +13,11 @@ pub async fn get_aws_config() -> &'static SdkConfig {
 pub const PDF_SYS_PROMPT: &str = "You are an expert travel itinerary analyzer. Extract comprehensive trip details from the PDF.
 
 Guidelines:
-- Extract ONLY explicitly stated information from the PDF
-- Infer trip descriptions, categories, interests, and languages from context
-- For price: extract per-person rate as a number (e.g., ₹25,000 → 25000). If range present, use any value.
+- ALWAYS provide name, description, and price - make educated guesses if needed
+  * Name: Use title, heading, or create from main destination (e.g., 'Varanasi Evening Tour')
+  * Description: Infer from content even if not explicitly stated (2-3 sentences)
+  * Price: Extract if mentioned, otherwise estimate based on trip type and duration
+- Extract other information ONLY if explicitly stated in the PDF
 - For duration: only include if explicitly stated with units (hours/days/nights)
 - For stops: preserve order, extract activities mentioned, skip duration unless explicitly stated in minutes
 - Categories: infer trip type (e.g., 'Cultural experiences', 'Adventure', 'Spiritual tours', 'Wildlife safaris')
@@ -27,9 +29,11 @@ Output in JSON format matching the provided schema.";
 pub const MARKDOWN_SYS_PROMPT: &str = "You are an expert travel itinerary analyzer. Extract comprehensive trip details from the text.
 
 Guidelines:
-- Extract ONLY explicitly stated information from the content
-- Infer trip descriptions, categories, interests, and languages from context
-- For price: extract per-person rate as a number. If range present, use any value.
+- ALWAYS provide name, description, and price - make educated guesses if needed
+  * Name: Use title, heading, or create from main destination
+  * Description: Infer from content even if not explicitly stated (2-3 sentences)
+  * Price: Extract if mentioned, otherwise estimate based on trip type and duration
+- Extract other information ONLY if explicitly stated in the content
 - For duration: only include if explicitly stated with units (hours/days/nights)
 - For stops: preserve order, extract activities mentioned, skip duration unless explicitly stated
 - Categories: infer trip type (e.g., 'Cultural experiences', 'Adventure', 'Day trips')
