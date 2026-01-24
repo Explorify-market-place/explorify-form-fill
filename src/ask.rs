@@ -51,21 +51,27 @@ pub async fn ask(request: Request) -> Result<Value, Box<dyn Error>> {
     let is_link: bool;
     let parts = if let Some(link) = request.link {
         is_link = true;
-        vec![Part::text(link_to_markdown(&link).await?.into())]
+        vec![
+            Part::text("# Text\n".into()),
+            Part::text(link_to_markdown(&link).await?.into()),
+        ]
     } else {
         is_link = false;
         let pdf = request
             .pdf
             .expect("Neither link nor pdf field was present in request");
-        vec![Part::inline_data(InlineData::new(
-            mime::APPLICATION_PDF,
-            fetch_pdf_base64(&pdf).await?,
-        ))]
+        vec![
+            Part::text("# PDF\n".into()),
+            Part::inline_data(InlineData::new(
+                mime::APPLICATION_PDF,
+                fetch_pdf_base64(&pdf).await?,
+            )),
+        ]
     };
 
     let response = Gemini::new(
         env::var("GEMINI_API_KEY").unwrap(),
-        "gemini-2.5-flash",
+        "gemini-3-flash-preview",
         Some(
             if is_link {
                 MARKDOWN_SYS_PROMPT
@@ -96,7 +102,10 @@ pub async fn ask_link_test() {
 pub async fn ask_pdf_test() {
     dbg!(
         ask(Request {
-            pdf: Some("itineraries/temp-ec705976-8753-40a3-ad11-80a92909bae1-1769014010233-spiti.pdf".into()),
+            pdf: Some(
+                "itineraries/temp-ec705976-8753-40a3-ad11-80a92909bae1-1769014010233-spiti.pdf"
+                    .into()
+            ),
             link: None
         })
         .await

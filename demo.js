@@ -28,5 +28,5 @@ async function readPdf(key) {
     res = await res.text()
     return JSON.parse(res)
 }
-// readLink("https://traveltechindia.netlify.app/Details/Pachmarhi").then(data => console.log(data))
-readPdf("itineraries/temp-ec705976-8753-40a3-ad11-80a92909bae1-1769014010233-spiti.pdf").then(data => console.log(data))
+readLink("https://traveltechindia.netlify.app/Details/Pachmarhi").then(data => console.log(data))
+// readPdf("itineraries/temp-ec705976-8753-40a3-ad11-80a92909bae1-1769014010233-spiti.pdf").then(data => console.log(data))
