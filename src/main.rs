@@ -1,3 +1,5 @@
+use std::env;
+
 use lambda_runtime::{LambdaEvent, service_fn, tracing};
 use serde::Deserialize;
 use serde_json::{Value, from_str, json};
@@ -12,8 +14,17 @@ struct Event {
     body: String,
 }
 async fn handler(event: LambdaEvent<Event>) -> Result<Value, lambda_runtime::Error> {
-    let request: Request = match from_str(&event.payload.body) {
-        Ok(request) => request,
+    let request: Request = match from_str::<Request>(&event.payload.body) {
+        Ok(request) => {
+            if request.secret == env::var("API_SECRET").unwrap() {
+                request
+            } else {
+                return Ok(json!({
+                    "statusCode":401,
+                    "body":"Authentication failed"
+                }));
+            }
+        }
         Err(e) => {
             return Ok(json!({
                 "statusCode":400,

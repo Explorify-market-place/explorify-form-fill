@@ -18,6 +18,7 @@ use std::{env, error::Error, str::from_utf8};
 pub struct Request {
     pdf: Option<String>,
     link: Option<String>,
+    pub secret: String,
 }
 
 async fn link_to_markdown(url: &str) -> Result<String, Box<dyn Error>> {
@@ -92,7 +93,8 @@ pub async fn ask_link_test() {
     dbg!(
         ask(Request {
             pdf: None,
-            link: Some("https://traveltechindia.netlify.app/Details/Pachmarhi".to_string())
+            link: Some("https://traveltechindia.netlify.app/Details/Pachmarhi".to_string()),
+            secret: env::var("API_SECRET").unwrap()
         })
         .await
         .unwrap()
@@ -106,7 +108,8 @@ pub async fn ask_pdf_test() {
                 "itineraries/temp-ec705976-8753-40a3-ad11-80a92909bae1-1769014010233-spiti.pdf"
                     .into()
             ),
-            link: None
+            link: None,
+            secret: env::var("API_SECRET").unwrap()
         })
         .await
         .unwrap()
