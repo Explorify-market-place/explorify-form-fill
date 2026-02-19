@@ -19,6 +19,7 @@ async fn handler(event: LambdaEvent<Event>) -> Result<Value, lambda_runtime::Err
             if request.secret == env::var("API_SECRET").unwrap() {
                 request
             } else {
+                print!("Authentication failed");
                 return Ok(json!({
                     "statusCode":401,
                     "body":"Authentication failed"
@@ -35,16 +36,22 @@ async fn handler(event: LambdaEvent<Event>) -> Result<Value, lambda_runtime::Err
 
     let response = ask(request).await;
     match response {
-        Ok(response) => Ok(json!({
-            "statusCode":200,
-            "body":response,
+        Ok(response) => {
+            println!("Processed request.\n{response}");
+            Ok(json!({
+                "statusCode":200,
+                "body":response,
+            }
+            ))
         }
-        )),
-        Err(e) => Ok(json!({
-            "statusCode":400,
-            "body":e.to_string(),
+        Err(e) => {
+            eprintln!("Failed to process request: {e}");
+            Ok(json!({
+                "statusCode":400,
+                "body":e.to_string(),
+            }
+            ))
         }
-        )),
     }
 }
 #[tokio::main]
