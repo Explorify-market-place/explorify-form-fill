@@ -219,6 +219,15 @@ pub static OUTPUT_SCHEMA: LazyLock<Value> = LazyLock::new(|| {
           "items": {
             "type": "string"
           }
+        },
+        "images": {
+          "type": "array",
+          "description": "Public URLs of images scraped from the web page. Include high-quality images of destinations, activities, or trip highlights. Only applicable when scraping from web links, not PDFs.",
+          "items": {
+            "type": "string",
+            "format": "uri",
+            "description": "Public image URL"
+          }
         }
       },
       "required": [
